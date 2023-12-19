@@ -140,8 +140,9 @@ def strCreateJSONLabel(pstrValue: str) -> str:
 
     assert type(pstrValue) == str
 
-    # replace hyphens with underscores
+    # replace spaces and hyphens with underscores
     strOut = pstrValue.replace('-', '_')
+    strOut = pstrValue.replace(' ', '_')
 
     # remove other characters
     strRemove = '!@#$%^&*()+-=[]\\{}|;\':",./<>?'
