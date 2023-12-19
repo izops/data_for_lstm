@@ -128,6 +128,27 @@ def tplFindEarliestToken(pstrText: str, plstTokens: list) -> tuple:
 
     return tplPosition
 
+def strCreateJSONLabel(pstrValue: str) -> str:
+    """Convert string to required JSON label.
+    
+    Inputs:
+        - pstrValue - value to convert
+
+    Outputs:
+        - strOut - cleaned up value
+    """
+
+    assert type(pstrValue) == str
+
+    # replace hyphens with underscores
+    strOut = pstrValue.replace('-', '_')
+
+    # remove other characters
+    strRemove = '!@#$%^&*()+-=[]\\{}|;\':",./<>?'
+    strOut = ''.join([x.lower() for x in strOut if x not in strRemove])
+
+    return strOut
+
 # %% import data
 
 dtfCity = pd.read_csv(strPathData + 'cities.csv', encoding='latin-1')
