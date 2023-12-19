@@ -1,4 +1,5 @@
 # %% imports
+import random
 import pandas as pd
 
 # %% paths and definitions
@@ -6,6 +7,10 @@ import pandas as pd
 # paths
 strPathData = 'c:/repositories/zzz_data_for_lstm/data/inputs/'
 strPathTemplates = 'c:/repositories/zzz_data_for_lstm/templates/'
+
+# file names
+strTemplateName = 'template'
+strTemplateExt = '.txt'
 
 # invoice tokens
 strTokCompany = '[my-company]'
@@ -57,9 +62,39 @@ lstTokens = [
 ]
 
 # functions
+def strGetRandomTemplate(pintSampleSize: int) -> str:
+    """Return text saved in one of the possible templates.
+    
+    Inputs:
+        - pintSampleSize - number of available templates to choose from
+
+    Outputs:
+        - strSingleLine - one line string containing contents of a random
+        template
+    """
+    
+    assert type(pintSampleSize) == int, 'The sample size must be an integer'
+    assert pintSampleSize > 0, 'There must be more than 1 template available'
+
+    # generate a number to specify the template
+    intTemplate = random.randint(1, pintSampleSize)
+
+    # define the full name of the file to import
+    strFile = strPathTemplates + strTemplateName + str(intTemplate)
+    strFile += strTemplateExt
+
+    # open and read in the file
+    objTemplate = open(strFile, 'r')
+    lstContents = objTemplate.readlines()
+
+    # join the contents to a single line string
+    strSingleLine = ''.join(lstContents)
+
+    return strSingleLine
+
 def tplFindEarliestToken(pstrText: str, plstTokens: list) -> tuple:
     """Return position of the earliest occurence of any of the tokens, together
-    with the token itself
+    with the token itself.
     
     Inputs:
         - pstrText - text to search for a token
