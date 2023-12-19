@@ -101,8 +101,8 @@ def tplFindEarliestToken(pstrText: str, plstTokens: list) -> tuple:
         - plstTokens - list of tokens to look for
 
     Outputs:
-        - tuple of the earliest token and its position, if no token is found,
-        (-1, None) is returned
+        - tplPosition - tuple of the earliest token and its position,
+        if no token is found, (-1, None) is returned
     """
 
     assert type(pstrText) == str
