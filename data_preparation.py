@@ -30,3 +30,33 @@ strTokA = '[amount]'
 strTokS = '[subtotal]'
 strTokT = '[tax]'
 strTokTotal = '[total]'
+
+# functions
+def tplFindEarliestToken(pstrText: str, plstTokens: list) -> tuple:
+    """Return position of the earliest occurence of any of the tokens, together
+    with the token itself
+    
+    Inputs:
+        - pstrText - text to search for a token
+        - plstTokens - list of tokens to look for
+
+    Outputs:
+        - tuple of the earliest token and its position, if no token is found,
+        (-1, None) is returned
+    """
+
+    assert type(pstrText) == str
+    assert type(plstTokens) == list
+
+    # initialize return values
+    tplPosition = (-1, None)
+
+    for strToken in plstTokens:
+        # locate the token in the string
+        intPosition = pstrText.find(strToken)
+
+        # remember the token if found on an earlier position
+        if intPosition >= 0 and intPosition < tplPosition[0]:
+            tplPosition = (intPosition, strToken)
+
+    return tplPosition
