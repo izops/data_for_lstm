@@ -31,6 +31,31 @@ strTokS = '[subtotal]'
 strTokT = '[tax]'
 strTokTotal = '[total]'
 
+lstTokens = [
+    strTokCompany,
+    strTokStreet,
+    strTokCity,
+    strTokZip,
+    strTokPhone,
+    strTokEmail,
+    strTokDateIn,
+    strTokDateDue,
+    strTokClient,
+    strTokClientStreet,
+    strTokClientCity,
+    strTokClientZip,
+    strTokInvoiceNo,
+    strTokItemsStart,
+    strTokItemsEnd,
+    strTokItem,
+    strTokQ,
+    strTokR,
+    strTokA,
+    strTokS,
+    strTokT,
+    strTokTotal
+]
+
 # functions
 def tplFindEarliestToken(pstrText: str, plstTokens: list) -> tuple:
     """Return position of the earliest occurence of any of the tokens, together
