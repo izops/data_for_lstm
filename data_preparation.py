@@ -137,3 +137,50 @@ dtfName = pd.read_csv(strPathData + 'name.csv', encoding='latin-1')
 dtfPhone = pd.read_csv(strPathData + 'phone.csv', encoding='latin-1')
 dtfStreet = pd.read_csv(strPathData + 'street.csv', encoding='latin-1')
 
+# %% generate the annotated file
+for intCount in range(intFiles):
+    # get a random template to annotate
+    strAnnotation = strGetRandomTemplate(intTemplates)
+
+    # initialize annotation dictionary
+    dctAnnotation = {
+        'text': '',
+        'annotations': []
+    }
+
+    # initialize position variables
+    intStart = 0
+    intEnd = 0
+
+    # initialize token dictionary
+    dctTokens = {
+        strTokCity: {
+            'label': 
+        }
+    }
+
+    # set seed
+    np.random.seed(0)
+
+    # get token
+    intStart, strToken = tplFindEarliestToken(strAnnotation, lstTokens)
+
+    # based on token generate the appropriate data to replace it
+    if strToken == strTokCity:
+        # shuffle city data and get first observation
+        dtfRandom = dtfCity.apply(np.random.permutation)
+        strReplace = dtfRandom.iloc[0][0]
+
+        # create a 
+
+    elif strToken in [strTokClient, strTokCompany]:
+        # shuffle company data and get first observation
+        dtfRandom = dtfCompany.apply(np.random.permutation)
+        strReplace = dtfRandom.iloc[0][0] + ' ' + dtfRandom.iloc[0][1]
+
+    # find the position of the token
+    intStart = strAnnotation.find(strToken)
+    intEnd = intStart + len(strReplace) - 1
+
+    # replace the token
+    strAnnotation = strAnnotation.replace(strToken, strReplace)
