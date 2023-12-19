@@ -1,8 +1,15 @@
 # %% imports
 import random
+import numpy as np
 import pandas as pd
 
 # %% paths and definitions
+
+# number of files to generate
+intFiles = 10
+
+# number of available templates
+intTemplates = 1
 
 # paths
 strPathData = 'c:/repositories/zzz_data_for_lstm/data/inputs/'
@@ -120,3 +127,13 @@ def tplFindEarliestToken(pstrText: str, plstTokens: list) -> tuple:
             tplPosition = (intPosition, strToken)
 
     return tplPosition
+
+# %% import data
+
+dtfCity = pd.read_csv(strPathData + 'cities.csv', encoding='latin-1')
+dtfCompany = pd.read_csv(strPathData + 'company.csv', encoding='latin-1')
+dtfItems = pd.read_csv(strPathData + 'items.csv', encoding='latin-1')
+dtfName = pd.read_csv(strPathData + 'name.csv', encoding='latin-1')
+dtfPhone = pd.read_csv(strPathData + 'phone.csv', encoding='latin-1')
+dtfStreet = pd.read_csv(strPathData + 'street.csv', encoding='latin-1')
+
