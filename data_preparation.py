@@ -178,6 +178,41 @@ def strRandomDate() -> str:
 
     return strDate
 
+def strRandomizeTemplateItems(pstrTemplate: str) -> str:
+    """Extend text of the template by random number of items.
+    
+    Inputs:
+        - pstrTemplate - template string to modify, it must contain start and
+        end tokens that define the part of the template that will be repeated
+
+    Outputs:
+        - template extended by a random number of items    
+    """
+
+    # verify the presence of the start and end tokens
+    assert strTokItemsStart in pstrTemplate, 'Missing item list start token'
+    assert strTokItemsEnd in pstrTemplate, 'Missing item list end token'
+
+    # find the substring that represents the item list
+    intStart = pstrTemplate.find(strTokItemsStart)
+    intEnd = pstrTemplate.find(strTokItemsEnd)
+
+    # exclude start token from the requested string
+    intStart = intStart + len(strTokItemsStart)
+
+    # extract template sections
+    strPreList = pstrTemplate[:intStart]
+    strList = pstrTemplate[intStart:intEnd]
+    strPostList = pstrTemplate[intEnd:]
+
+    # get a random number of repetitions
+    intRepeat = random.randint(1, 20)
+
+    # prepare the modified template
+    strTemplateOut = strPreList + (strList * intRepeat) + strPostList
+
+    return strTemplateOut
+
 # %% import data
 
 dtfCity = pd.read_csv(strPathData + 'cities.csv', encoding='latin-1')
