@@ -58,7 +58,7 @@ lstTokens = [
     # strTokClientCity,
     # strTokClientZip,
     # strTokInvoiceNo,
-    strTokItemsStart,
+    # strTokItemsStart,
     strTokItemsEnd,
     strTokItem,
     strTokQ,
@@ -236,6 +236,8 @@ for intCount in range(intFiles):
     # initialize position variables
     intStart = 0
     intEnd = 0
+    intListStart = 0
+    intListEnd = 0
 
     # set seed
     np.random.seed(0)
@@ -288,22 +290,38 @@ for intCount in range(intFiles):
             intInvoiceNum = random.randint(10000, 99999999)
             strReplace = str(intInvoiceNum)
 
+        elif strToken == strTokItemsStart:
+            # remember the starting position of the item list
+            intListStart = intStart
+
+            # replace the token with empty string
+            strReplace = ''
+
+        elif strToken == strTokItemsEnd:
+            # remember the ending position of the item list
+            intListEnd = intStart
+
+            # replace the token with empty string
+            strReplace = ''
+
         # calculate the end position of the token
         intEnd = intStart + len(strReplace) - 1
 
         # replace the token in the text
         strText = strText.replace(strToken, strReplace)
 
-        # create annotation
-        dctAnnotation = {
-            'label': strCreateJSONLabel(strToken),
-            'start': intStart,
-            'end': intEnd
-        }
+        # update the document and annotation unless it's a list start token
+        if strToken != strTokItemsStart:
+            # create annotation
+            dctAnnotation = {
+                'label': strCreateJSONLabel(strToken),
+                'start': intStart,
+                'end': intEnd
+            }
 
-        # update the JSON dictionary
-        dctJSON['text'] = strText
-        dctJSON['annotations'].append(dctAnnotation)
+            # update the JSON dictionary
+            dctJSON['text'] = strText
+            dctJSON['annotations'].append(dctAnnotation)
 
         # get the next token
         intStart, strToken = tplFindEarliestToken(strText, lstTokens)
