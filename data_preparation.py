@@ -127,16 +127,22 @@ def tplFindEarliestToken(pstrText: str, plstTokens: list) -> tuple:
     assert type(plstTokens) == list
 
     # initialize return values
-    tplPosition = (-1, None)
+    tplPosition = (len(pstrText), None)
 
     for strToken in plstTokens:
         # locate the token in the string
         intPosition = pstrText.find(strToken)
 
         # remember the token if found on an earlier position
-        if (intPosition >= 0 and tplPosition[0] == -1) or \
-        (intPosition < tplPosition[0]):
+        if intPosition >= 0 and intPosition < tplPosition[0]:
             tplPosition = (intPosition, strToken)
+
+        # logging
+        # strLog = 'tplFindEarliestToken : \n'
+        # strLog += 'strToken: ' + strToken + '\n'
+        # strLog += 'intPosition: ' + str(intPosition) + '\n'
+        # strLog += '-'*32 + '\n'
+        # logging.debug(strLog)
 
     return tplPosition
 
@@ -211,7 +217,7 @@ def strRandomizeTemplateItems(pstrTemplate: str) -> str:
 
     # extract template sections
     strPreList = pstrTemplate[:intStart]
-    strList = pstrTemplate[intStart:intEnd]
+    strList = pstrTemplate[intStart:intEnd] + '\n'
     strPostList = pstrTemplate[intEnd:]
 
     # get a random number of repetitions
@@ -239,7 +245,6 @@ dtfPhone = pd.read_csv(
 for intCount in range(intFiles):
     # get a random template to annotate
     strText = strGetRandomTemplate(intTemplates)
-    logging.debug('Initial template: \n' + strText + '\n' + '-' * 16 +'\n')
 
     # initialize annotation dictionary
     dctJSON = {
@@ -256,13 +261,13 @@ for intCount in range(intFiles):
     intSubtotal = 0
 
     # set seed
-    np.random.seed(0)
+    np.random.seed(3)
 
     # get first token
     intStart, strToken = tplFindEarliestToken(strText, lstTokens)
     logging.debug(
         'Initial position and token: \n' + str(intStart) + '\n' + strToken + \
-        '-' * 16 +'\n'
+        '\n' + '-' * 16 +'\n'
     )
 
     # do this for all tokens
@@ -270,11 +275,9 @@ for intCount in range(intFiles):
         # based on token generate the appropriate data to replace it
         if strToken in [strTokClient, strTokCompany]:
             # shuffle company data and get first observation
-            dtfRandom = dtfCompany.apply(np.random.permutation)
-            strReplace = dtfRandom.iloc[0][0] + ' ' + dtfRandom.iloc[0][1]
-
-            logging.debug('Company replace: ' + str(strReplace))
-            logging.debug('Company replace type: ' + str(type(strReplace)))
+            dtfRandomCompany = dtfCompany.apply(np.random.permutation)
+            strReplace = dtfRandomCompany.iloc[0][0]
+            strReplace += ' ' + dtfRandomCompany.iloc[0][1]
 
         elif strToken in [strTokCity, strTokClientCity]:
             # shuffle city data and get first observation
@@ -290,7 +293,7 @@ for intCount in range(intFiles):
             # generate zip code
             intZip = random.randint(100000, 199999)
             strZip = str(intZip)
-            strZip = strZip[1:]
+            strReplace = strZip[1:]
 
         elif strToken == strTokPhone:
             # shuffle phone data and get first observation
@@ -305,8 +308,8 @@ for intCount in range(intFiles):
             # shuffle name data and generate email from name and company info
             dtfRandom = dtfName.apply(np.random.permutation)
             strReplace = dtfRandom.iloc[0][0] + '.' + dtfRandom.iloc[0][1]
-            strReplace += '@' + dtfCompany.iloc[0][0] + dtfCompany.iloc[0][1]
-            strReplace += '.com'
+            strReplace += '@' + dtfRandomCompany.iloc[0][0] 
+            strReplace += dtfRandomCompany.iloc[0][1] + '.com'
 
         elif strToken == strTokInvoiceNo:
             # generate a random invoice number
@@ -366,13 +369,14 @@ for intCount in range(intFiles):
             strReplace = str(intSubtotal + intTax)
 
         # replace the token in the text
-        strText = strText.replace(strToken, strReplace)
+        if not strToken is None:
+            strText = strText.replace(strToken, strReplace)
 
-        logging.debug('strText replace - strReplace: ' + str(strReplace))
-        logging.debug('type(strReplace): ' + str(type(strReplace)))
+            logging.debug('strText replace - strToken: ' + strToken)
+            logging.debug('strText replace - strReplace: ' + strReplace)
 
         # update the document and annotation unless it's a list start token
-        if strToken != strTokItemsStart:
+        if not strToken is None and strToken != strTokItemsStart:
             # create special annotation for item list and standard for the rest
             if strToken == strTokItemsEnd:
                 # use list start and end indexes
