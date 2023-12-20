@@ -12,6 +12,9 @@ intFiles = 10
 # number of available templates
 intTemplates = 1
 
+# tax rate
+intTaxRate = 0.2
+
 # paths
 strPathData = 'c:/repositories/zzz_data_for_lstm/data/inputs/'
 strPathTemplates = 'c:/repositories/zzz_data_for_lstm/templates/'
@@ -41,31 +44,31 @@ strTokQ = '[qty]'
 strTokR = '[rate]'
 strTokA = '[amount]'
 strTokS = '[subtotal]'
-strTokT = '[tax]'
+strTokTax = '[tax]'
 strTokTotal = '[total]'
 
 lstTokens = [
-    # strTokCompany,
-    # strTokStreet,
-    # strTokCity,
-    # strTokZip,
-    # strTokPhone,
-    # strTokEmail,
-    # strTokDateIn,
-    # strTokDateDue,
-    # strTokClient,
-    # strTokClientStreet,
-    # strTokClientCity,
-    # strTokClientZip,
-    # strTokInvoiceNo,
-    # strTokItemsStart,
+    strTokCompany,
+    strTokStreet,
+    strTokCity,
+    strTokZip,
+    strTokPhone,
+    strTokEmail,
+    strTokDateIn,
+    strTokDateDue,
+    strTokClient,
+    strTokClientStreet,
+    strTokClientCity,
+    strTokClientZip,
+    strTokInvoiceNo,
+    strTokItemsStart,
     strTokItemsEnd,
     strTokItem,
     strTokQ,
     strTokR,
     strTokA,
     strTokS,
-    strTokT,
+    strTokTax,
     strTokTotal
 ]
 
@@ -239,6 +242,9 @@ for intCount in range(intFiles):
     intListStart = 0
     intListEnd = 0
 
+    # initialize subtotal variable
+    intSubtotal = 0
+
     # set seed
     np.random.seed(0)
 
@@ -304,14 +310,52 @@ for intCount in range(intFiles):
             # replace the token with empty string
             strReplace = ''
 
-        # calculate the end position of the token
-        intEnd = intStart + len(strReplace) - 1
+        elif strToken == strTokItem:
+            # shuffle phone data and get first observation
+            dtfRandom = dtfItems.apply(np.random.permutation)
+            strReplace = dtfRandom.iloc[0][0]
+
+        elif strToken == strTokQ:
+            # generate random quantity and store it for amount calculation
+            intQuantity = random.randint(1, 20)
+            strReplace = str(intQuantity)
+
+        elif strToken == strTokR:
+            # generate random unit price and store it for amount calculation
+            intRate = random.randint(100, 2000)
+            strReplace = str(intRate)
+
+        elif strToken == strTokA:
+            # calculate the total amount
+            intAmount = intQuantity * intRate
+
+            # increment subtotal
+            intSubtotal += intAmount
+
+            # create a value for token replacement
+            strReplace = str(intAmount)
+
+        elif strToken == strTokS:
+            # use calculated subtotal as a replacement
+            strReplace = str(intSubtotal)
+
+        elif strToken == strTokTax:
+            # use pre-defined tax value for tax calculation
+            intTax = round(intTaxRate * intSubtotal, 2)
+            strReplace = str(intTax)
+
+        elif strToken == strTokTotal:
+            # sum the subtotal and tax
+            strReplace = str(intSubtotal + intTax)
 
         # replace the token in the text
         strText = strText.replace(strToken, strReplace)
 
         # update the document and annotation unless it's a list start token
         if strToken != strTokItemsStart:
+            # calculate the end position of the token
+            intEnd = intStart + len(strReplace) - 1
+
             # create annotation
             dctAnnotation = {
                 'label': strCreateJSONLabel(strToken),
