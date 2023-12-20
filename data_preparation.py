@@ -7,14 +7,14 @@ import logging
 
 # %% set up logging
 logging.basicConfig(
-    level = logging.DEBUG,
+    level = logging.INFO,
     format=' %(asctime)s -  %(levelname)s -  %(message)s'
 )
 
 # %% paths and definitions
 
 # number of files to generate
-intFiles = 1
+intFiles = 10
 
 # number of available templates
 intTemplates = 1
@@ -25,6 +25,7 @@ intTaxRate = 0.2
 # paths
 strPathData = 'c:/repositories/zzz_data_for_lstm/data/inputs/'
 strPathTemplates = 'c:/repositories/zzz_data_for_lstm/templates/'
+strPathOutputs = 'c:/repositories/zzz_data_for_lstm/data/outputs/'
 
 # file names
 strTemplateName = 'template'
@@ -230,6 +231,7 @@ def strRandomizeTemplateItems(pstrTemplate: str) -> str:
     strPostList = pstrTemplate[intEnd:]
 
     # get a random number of repetitions
+    random.seed(11)
     intRepeat = random.randint(1, 20)
 
     # prepare the modified template
@@ -251,9 +253,12 @@ dtfPhone = pd.read_csv(
 )
 
 # %% generate annotations
-for intCount in range(intFiles):
+for intCount in range(intFiles + 1):
     # get a random template to annotate
     strText = strGetRandomTemplate(intTemplates)
+
+    # create random list of invoice items
+    strText = strRandomizeTemplateItems(strText)
 
     # initialize annotation dictionary
     dctJSON = {
@@ -268,9 +273,6 @@ for intCount in range(intFiles):
 
     # initialize subtotal variable
     intSubtotal = 0
-
-    # set seed
-    np.random.seed(3)
 
     # get first token
     intStart, strToken = tplFindEarliestToken(strText, lstTokens)
@@ -377,9 +379,9 @@ for intCount in range(intFiles):
             # sum the subtotal and tax
             strReplace = str(intSubtotal + intTax)
 
-        # replace the token in the text
+        # replace the first instance of the token in the text
         if not strToken is None:
-            strText = strText.replace(strToken, strReplace)
+            strText = strText.replace(strToken, strReplace, 1)
 
             logging.debug('strText replace - strToken: ' + strToken)
             logging.debug('strText replace - strReplace: ' + strReplace)
@@ -417,5 +419,11 @@ for intCount in range(intFiles):
 
     # export the annotated file to json
     strJSON = json.dumps(dctJSON, indent=4)
-    print(strJSON)
-# %%
+    
+    # create a name for the output file
+    strOut = strPathOutputs + 'a' + str(100000 + intCount) + '.json'
+
+    # save the invoice in a json file
+    objNewJSON = open(strOut, 'w')
+    objNewJSON.writelines(strJSON)
+    objNewJSON.close()
