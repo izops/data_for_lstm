@@ -159,13 +159,13 @@ dtfName = pd.read_csv(strPathData + 'name.csv', encoding='latin-1')
 dtfPhone = pd.read_csv(strPathData + 'phone.csv', encoding='latin-1')
 dtfStreet = pd.read_csv(strPathData + 'street.csv', encoding='latin-1')
 
-# %% generate the annotated file
+# %% generate annotations
 for intCount in range(intFiles):
     # get a random template to annotate
-    strAnnotation = strGetRandomTemplate(intTemplates)
+    strText = strGetRandomTemplate(intTemplates)
 
     # initialize annotation dictionary
-    dctAnnotation = {
+    dctJSON = {
         'text': '',
         'annotations': []
     }
@@ -174,18 +174,11 @@ for intCount in range(intFiles):
     intStart = 0
     intEnd = 0
 
-    # initialize token dictionary
-    dctTokens = {
-        strTokCity: {
-            'label': 
-        }
-    }
-
     # set seed
     np.random.seed(0)
 
     # get token
-    intStart, strToken = tplFindEarliestToken(strAnnotation, lstTokens)
+    intStart, strToken = tplFindEarliestToken(strText, lstTokens)
 
     # based on token generate the appropriate data to replace it
     if strToken == strTokCity:
@@ -201,8 +194,19 @@ for intCount in range(intFiles):
         strReplace = dtfRandom.iloc[0][0] + ' ' + dtfRandom.iloc[0][1]
 
     # find the position of the token
-    intStart = strAnnotation.find(strToken)
+    intStart = strText.find(strToken)
     intEnd = intStart + len(strReplace) - 1
 
-    # replace the token
-    strAnnotation = strAnnotation.replace(strToken, strReplace)
+    # replace the token in the text
+    strText = strText.replace(strToken, strReplace)
+
+    # create annotation
+    dctAnnotation = {
+        'label': strCreateJSONLabel(strToken),
+        'start': intStart,
+        'end': intEnd
+    }
+
+    # update the JSON dictionary
+    dctJSON['text'] = strText
+    dctJSON['annotations'].append(dctAnnotation)
