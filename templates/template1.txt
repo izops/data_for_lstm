@@ -15,9 +15,7 @@ Bill To:
 Invoice Number: [invoice-no]
 Description                           Quantity     Rate       Amount
 -------------------------------------------------------------------
-[list-item-start]
-[item-name]                            ,[qty]     ,[rate]   ,[amount]
-[list-item-end]
+[list-item-start][item-name]                            [qty]      [rate]     [amount][list-item-end]
 -------------------------------------------------------------------
 Subtotal:                                                    [subtotal]
 Tax:                                                         [tax]
