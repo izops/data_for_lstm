@@ -3,11 +3,19 @@ import random
 import datetime
 import numpy as np
 import pandas as pd
+import json
+import logging
+
+# %% set up logging
+logging.basicConfig(
+    level = logging.DEBUG,
+    format=' %(asctime)s -  %(levelname)s -  %(message)s'
+)
 
 # %% paths and definitions
 
 # number of files to generate
-intFiles = 10
+intFiles = 1
 
 # number of available templates
 intTemplates = 1
@@ -229,6 +237,7 @@ dtfStreet = pd.read_csv(strPathData + 'street.csv', encoding='latin-1')
 for intCount in range(intFiles):
     # get a random template to annotate
     strText = strGetRandomTemplate(intTemplates)
+    logging.debug('Initial template: \n' + strText + '\n' + '-' * 16)
 
     # initialize annotation dictionary
     dctJSON = {
@@ -237,10 +246,10 @@ for intCount in range(intFiles):
     }
 
     # initialize position variables
-    intStart = 0
-    intEnd = 0
-    intListStart = 0
-    intListEnd = 0
+    intStart = -1
+    intEnd = -1
+    intListStart = -1
+    intListEnd = -1
 
     # initialize subtotal variable
     intSubtotal = 0
@@ -248,7 +257,7 @@ for intCount in range(intFiles):
     # set seed
     np.random.seed(0)
 
-    # get token
+    # get first token
     intStart, strToken = tplFindEarliestToken(strText, lstTokens)
 
     # do this for all tokens
@@ -369,3 +378,8 @@ for intCount in range(intFiles):
 
         # get the next token
         intStart, strToken = tplFindEarliestToken(strText, lstTokens)
+
+    # export the annotated file to json
+    strJSON = json.dumps(dctJSON, indent=4)
+    print(strJSON)
+# %%
