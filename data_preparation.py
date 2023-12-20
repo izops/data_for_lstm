@@ -45,19 +45,19 @@ strTokT = '[tax]'
 strTokTotal = '[total]'
 
 lstTokens = [
-    strTokCompany, #
-    strTokStreet, #
-    strTokCity, #
-    strTokZip, #
-    strTokPhone, #
-    strTokEmail, #
-    strTokDateIn,
-    strTokDateDue,
-    strTokClient, #
-    strTokClientStreet, #
-    strTokClientCity, #
-    strTokClientZip, #
-    strTokInvoiceNo,
+    # strTokCompany,
+    # strTokStreet,
+    # strTokCity,
+    # strTokZip,
+    # strTokPhone,
+    # strTokEmail,
+    # strTokDateIn,
+    # strTokDateDue,
+    # strTokClient,
+    # strTokClientStreet,
+    # strTokClientCity,
+    # strTokClientZip,
+    # strTokInvoiceNo,
     strTokItemsStart,
     strTokItemsEnd,
     strTokItem,
@@ -238,6 +238,7 @@ for intCount in range(intFiles):
             strReplace = dtfRandom.iloc[0][0]
 
         elif strToken in [strTokDateIn, strTokDateDue]:
+            # generate random date
             strReplace = strRandomDate()
 
         elif strToken == strTokEmail:
@@ -246,6 +247,11 @@ for intCount in range(intFiles):
             strReplace = dtfRandom.iloc[0][0] + '.' + dtfRandom.iloc[0][1]
             strReplace += '@' + dtfCompany.iloc[0][0] + dtfCompany.iloc[0][1]
             strReplace += '.com'
+
+        elif strToken == strTokInvoiceNo:
+            # generate a random invoice number
+            intInvoiceNum = random.randint(10000, 99999999)
+            strReplace = str(intInvoiceNum)
 
         # calculate the end position of the token
         intEnd = intStart + len(strReplace) - 1
