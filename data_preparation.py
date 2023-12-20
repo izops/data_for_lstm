@@ -253,7 +253,7 @@ dtfPhone = pd.read_csv(
 )
 
 # %% generate annotations
-for intCount in range(intFiles + 1):
+for intCount in range(intFiles):
     # get a random template to annotate
     strText = strGetRandomTemplate(intTemplates)
 
