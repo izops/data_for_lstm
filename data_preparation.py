@@ -1,5 +1,6 @@
 # %% imports
 import random
+import datetime
 import numpy as np
 import pandas as pd
 
@@ -44,18 +45,18 @@ strTokT = '[tax]'
 strTokTotal = '[total]'
 
 lstTokens = [
-    strTokCompany,
-    strTokStreet,
-    strTokCity,
-    strTokZip,
-    strTokPhone,
-    strTokEmail,
+    strTokCompany, #
+    strTokStreet, #
+    strTokCity, #
+    strTokZip, #
+    strTokPhone, #
+    strTokEmail, #
     strTokDateIn,
     strTokDateDue,
-    strTokClient,
-    strTokClientStreet,
-    strTokClientCity,
-    strTokClientZip,
+    strTokClient, #
+    strTokClientStreet, #
+    strTokClientCity, #
+    strTokClientZip, #
     strTokInvoiceNo,
     strTokItemsStart,
     strTokItemsEnd,
@@ -150,6 +151,33 @@ def strCreateJSONLabel(pstrValue: str) -> str:
 
     return strOut
 
+def strRandomDate() -> str:
+    """Generate random date and return it in dd/mm/yyyy format as string.
+    
+    Inputs:
+        - None
+
+    Outputs:
+        - strDate - date in dd/mm/yyyy format, it can potentially generate also
+        nonsense dates like 30/02/2021 or 31/04/2025
+    """
+
+    # generate random day
+    intDay = random.randint(1, 31)
+
+    # generate random month
+    intMonth = random.randint(1, 12)
+
+    # generate random year
+    intYear = random.randint(2020, 2030)
+
+    # create date
+    dteRandom = datetime.date(intYear, intMonth, intDay)
+
+    strDate = dteRandom.strftime('%d/%m/%y')
+
+    return strDate
+
 # %% import data
 
 dtfCity = pd.read_csv(strPathData + 'cities.csv', encoding='latin-1')
@@ -180,33 +208,61 @@ for intCount in range(intFiles):
     # get token
     intStart, strToken = tplFindEarliestToken(strText, lstTokens)
 
-    # based on token generate the appropriate data to replace it
-    if strToken == strTokCity:
-        # shuffle city data and get first observation
-        dtfRandom = dtfCity.apply(np.random.permutation)
-        strReplace = dtfRandom.iloc[0][0]
+    # do this for all tokens
+    while intStart >= 0:
+        # based on token generate the appropriate data to replace it
+        if strToken in [strTokClient, strTokCompany]:
+            # shuffle company data and get first observation
+            dtfRandom = dtfCompany.apply(np.random.permutation)
+            strReplace = dtfRandom.iloc[0][0] + ' ' + dtfRandom.iloc[0][1]
 
-        # create a 
+        elif strToken in [strTokCity, strTokClientCity]:
+            # shuffle city data and get first observation
+            dtfRandom = dtfCity.apply(np.random.permutation)
+            strReplace = dtfRandom.iloc[0][0]
 
-    elif strToken in [strTokClient, strTokCompany]:
-        # shuffle company data and get first observation
-        dtfRandom = dtfCompany.apply(np.random.permutation)
-        strReplace = dtfRandom.iloc[0][0] + ' ' + dtfRandom.iloc[0][1]
+        elif strToken in [strTokStreet, strTokClientStreet]:
+            # shuffle street data and get first observation
+            dtfRandom = dtfStreet.apply(np.random.permutation)
+            strReplace = dtfRandom.iloc[0][0]
 
-    # find the position of the token
-    intStart = strText.find(strToken)
-    intEnd = intStart + len(strReplace) - 1
+        elif strToken in [strTokZip, strTokClientZip]:
+            # generate zip code
+            intZip = random.randint(100000, 199999)
+            strZip = str(intZip)
+            strZip = strZip[1:]
 
-    # replace the token in the text
-    strText = strText.replace(strToken, strReplace)
+        elif strToken == strTokPhone:
+            # shuffle phone data and get first observation
+            dtfRandom = dtfPhone.apply(np.random.permutation)
+            strReplace = dtfRandom.iloc[0][0]
 
-    # create annotation
-    dctAnnotation = {
-        'label': strCreateJSONLabel(strToken),
-        'start': intStart,
-        'end': intEnd
-    }
+        elif strToken in [strTokDateIn, strTokDateDue]:
+            strReplace = strRandomDate()
 
-    # update the JSON dictionary
-    dctJSON['text'] = strText
-    dctJSON['annotations'].append(dctAnnotation)
+        elif strToken == strTokEmail:
+            # shuffle name data and generate email from name and company info
+            dtfRandom = dtfName.apply(np.random.permutation)
+            strReplace = dtfRandom.iloc[0][0] + '.' + dtfRandom.iloc[0][1]
+            strReplace += '@' + dtfCompany.iloc[0][0] + dtfCompany.iloc[0][1]
+            strReplace += '.com'
+
+        # calculate the end position of the token
+        intEnd = intStart + len(strReplace) - 1
+
+        # replace the token in the text
+        strText = strText.replace(strToken, strReplace)
+
+        # create annotation
+        dctAnnotation = {
+            'label': strCreateJSONLabel(strToken),
+            'start': intStart,
+            'end': intEnd
+        }
+
+        # update the JSON dictionary
+        dctJSON['text'] = strText
+        dctJSON['annotations'].append(dctAnnotation)
+
+        # get the next token
+        intStart, strToken = tplFindEarliestToken(strText, lstTokens)
