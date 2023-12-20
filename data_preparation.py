@@ -126,16 +126,25 @@ def tplFindEarliestToken(pstrText: str, plstTokens: list) -> tuple:
     assert type(pstrText) == str
     assert type(plstTokens) == list
 
-    # initialize return values
-    tplPosition = (len(pstrText), None)
+    # initialize position and token values
+    tplPosition = (-1, None)
 
     for strToken in plstTokens:
         # locate the token in the string
         intPosition = pstrText.find(strToken)
 
         # remember the token if found on an earlier position
-        if intPosition >= 0 and intPosition < tplPosition[0]:
-            tplPosition = (intPosition, strToken)
+        if intPosition >= 0:
+            # change the return position and token if earlier or first found
+            if intPosition < tplPosition[0]:
+                tplPosition = (intPosition, strToken)
+            elif tplPosition[0] == -1:
+                tplPosition = (intPosition, strToken)
+
+        # add a break optimization in case no token start found in
+        # the remaining part of the string
+        if not '[' in pstrText[:intPosition]:
+            break
 
         # logging
         # strLog = 'tplFindEarliestToken : \n'
