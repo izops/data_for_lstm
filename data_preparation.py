@@ -1,6 +1,5 @@
 # %% imports
 import random
-import datetime
 import numpy as np
 import pandas as pd
 import json
@@ -135,7 +134,8 @@ def tplFindEarliestToken(pstrText: str, plstTokens: list) -> tuple:
         intPosition = pstrText.find(strToken)
 
         # remember the token if found on an earlier position
-        if intPosition >= 0 and intPosition < tplPosition[0]:
+        if (intPosition >= 0 and tplPosition[0] == -1) or \
+        (intPosition < tplPosition[0]):
             tplPosition = (intPosition, strToken)
 
     return tplPosition
@@ -154,7 +154,7 @@ def strCreateJSONLabel(pstrValue: str) -> str:
 
     # replace spaces and hyphens with underscores
     strOut = pstrValue.replace('-', '_')
-    strOut = pstrValue.replace(' ', '_')
+    strOut = strOut.replace(' ', '_')
 
     # remove other characters
     strRemove = '!@#$%^&*()+-=[]\\{}|;\':",./<>?'
@@ -183,9 +183,7 @@ def strRandomDate() -> str:
     intYear = random.randint(2020, 2030)
 
     # create date
-    dteRandom = datetime.date(intYear, intMonth, intDay)
-
-    strDate = dteRandom.strftime('%d/%m/%y')
+    strDate = str(intDay) + '/' + str(intMonth) + '/' + str(intYear)
 
     return strDate
 
@@ -230,14 +228,18 @@ dtfCity = pd.read_csv(strPathData + 'cities.csv', encoding='latin-1')
 dtfCompany = pd.read_csv(strPathData + 'company.csv', encoding='latin-1')
 dtfItems = pd.read_csv(strPathData + 'items.csv', encoding='latin-1')
 dtfName = pd.read_csv(strPathData + 'name.csv', encoding='latin-1')
-dtfPhone = pd.read_csv(strPathData + 'phone.csv', encoding='latin-1')
 dtfStreet = pd.read_csv(strPathData + 'street.csv', encoding='latin-1')
+dtfPhone = pd.read_csv(
+    strPathData + 'phone.csv',
+    encoding='latin-1',
+    dtype={'Phone': str}
+)
 
 # %% generate annotations
 for intCount in range(intFiles):
     # get a random template to annotate
     strText = strGetRandomTemplate(intTemplates)
-    logging.debug('Initial template: \n' + strText + '\n' + '-' * 16)
+    logging.debug('Initial template: \n' + strText + '\n' + '-' * 16 +'\n')
 
     # initialize annotation dictionary
     dctJSON = {
@@ -246,7 +248,6 @@ for intCount in range(intFiles):
     }
 
     # initialize position variables
-    intStart = -1
     intEnd = -1
     intListStart = -1
     intListEnd = -1
@@ -259,6 +260,10 @@ for intCount in range(intFiles):
 
     # get first token
     intStart, strToken = tplFindEarliestToken(strText, lstTokens)
+    logging.debug(
+        'Initial position and token: \n' + str(intStart) + '\n' + strToken + \
+        '-' * 16 +'\n'
+    )
 
     # do this for all tokens
     while intStart >= 0:
@@ -267,6 +272,9 @@ for intCount in range(intFiles):
             # shuffle company data and get first observation
             dtfRandom = dtfCompany.apply(np.random.permutation)
             strReplace = dtfRandom.iloc[0][0] + ' ' + dtfRandom.iloc[0][1]
+
+            logging.debug('Company replace: ' + str(strReplace))
+            logging.debug('Company replace type: ' + str(type(strReplace)))
 
         elif strToken in [strTokCity, strTokClientCity]:
             # shuffle city data and get first observation
@@ -360,14 +368,29 @@ for intCount in range(intFiles):
         # replace the token in the text
         strText = strText.replace(strToken, strReplace)
 
+        logging.debug('strText replace - strReplace: ' + str(strReplace))
+        logging.debug('type(strReplace): ' + str(type(strReplace)))
+
         # update the document and annotation unless it's a list start token
         if strToken != strTokItemsStart:
-            # calculate the end position of the token
-            intEnd = intStart + len(strReplace) - 1
+            # create special annotation for item list and standard for the rest
+            if strToken == strTokItemsEnd:
+                # use list start and end indexes
+                intStart = intListStart
+                intEnd = intListEnd
+
+                # use custom label
+                strLabel = 'item_list'
+            else:
+                # calculate the end position of the token
+                intEnd = intStart + len(strReplace) - 1
+
+                # create label
+                strLabel = strCreateJSONLabel(strToken)
 
             # create annotation
             dctAnnotation = {
-                'label': strCreateJSONLabel(strToken),
+                'label': strLabel,
                 'start': intStart,
                 'end': intEnd
             }
