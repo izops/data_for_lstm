@@ -14,10 +14,10 @@ logging.basicConfig(
 # %% paths and definitions
 
 # number of files to generate
-intFiles = 10
+intFiles = 50000
 
 # number of available templates
-intTemplates = 1
+intTemplates = 11
 
 # tax rate
 intTaxRate = 0.2
@@ -271,8 +271,12 @@ for intCount in range(intFiles):
     intListStart = -1
     intListEnd = -1
 
-    # initialize subtotal variable
+    # initialize variables for templates that don't require this information
     intSubtotal = 0
+    intTax = 0
+    intQuantity = 1
+    intRate = 1
+    intAmount = 1
 
     # get first token
     intStart, strToken = tplFindEarliestToken(strText, lstTokens)
