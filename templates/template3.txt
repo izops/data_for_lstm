@@ -1,0 +1,16 @@
+[my-company]
+[invoice-no]          Invoice: [date-invoice]
+Due: [date-due]
+
+Bill To:
+[client]
+
+Description                  Quantity     Rate       Amount
+--------------------------------------------------------
+[list-item-start][item-name]                              [qty]       [rate]        [amount][list-item-end]
+--------------------------------------------------------
+Subtotal:                                     [subtotal]
+Tax:                                          [tax]
+Total:                                        [total]
+
+Thank you for choosing us!

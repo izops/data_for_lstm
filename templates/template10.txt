@@ -1,0 +1,18 @@
++++++++++++++++++++++++++++++++++++++++++++++++
++                                             +
++               INVOICE: #[invoice-no]     +
++   Bill To: [client]                    +
++            [client-address-street]                 +
++            [client-address-city], [client-address-zip]               +
++                                             +
++  ─────────────────────────────────────────  +
++ |         Description         |  Amount     |
++ |─────────────────────────────|─────────────|
+[list-item-start]+ | [item-name]                    | [amount]  |[list-item-end]
++  ─────────────────────────────────────────  +
++ |       Subtotal:             | [subtotal]  |
++ |       Tax:                  | [tax]       |
++ |       Total:                | [total]     |
++  ─────────────────────────────────────────  +
++    Payment Instructions                     +
++++++++++++++++++++++++++++++++++++++++++++++++
