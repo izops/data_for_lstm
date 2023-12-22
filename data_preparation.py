@@ -15,7 +15,7 @@ logging.basicConfig(
 # %% paths and definitions
 
 # number of files to generate
-intFiles = 50000
+intFiles = 30000
 
 # number of available templates
 intTemplates = 11
@@ -95,6 +95,11 @@ def strGetRandomTemplate(pintSampleSize: int) -> str:
     
     assert type(pintSampleSize) == int, 'The sample size must be an integer'
     assert pintSampleSize > 0, 'There must be more than 1 template available'
+
+    # set seed
+    random.seed(
+        datetime.datetime.now().second * datetime.datetime.now().minute
+    )
 
     # generate a number to specify the template
     intTemplate = random.randint(1, pintSampleSize)
@@ -444,3 +449,7 @@ for intCount in range(intFiles):
     objNewJSON = open(strOut, 'w')
     objNewJSON.writelines(strJSON)
     objNewJSON.close()
+
+    # print count
+    if intCount % 1000 == 0:
+        print('Generated {} files'.format(intCount))
