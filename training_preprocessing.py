@@ -84,4 +84,8 @@ for strFile in os.listdir(strPathJSON):
         dtfProcessing = dtfJSONtoDataFrame(dctData)
 
         # append the processed dataset to the main data frame
-        dtfData.append(dtfProcessing, ignore_index=True)
+        dtfData = pd.concat(
+            [dtfData, dtfProcessing],
+            axis=0,
+            ignore_index=True
+        )
