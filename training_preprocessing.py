@@ -89,3 +89,29 @@ for strFile in os.listdir(strPathJSON):
             axis=0,
             ignore_index=True
         )
+
+# replace punctuation from the original input text
+dtfData['clean_text'] = dtfData['text'].apply(strCleanUpText)
+
+# recalculate position of the labels after the cleanup
+dtfData['start_fix'] = dtfData.apply(
+    lambda row: row['start'] - sum(
+        [
+            1 for char in row['text'][:row['start']] \
+            if char in string.punctuation
+        ]
+    ),
+    axis=1
+)
+dtfData['end_fix'] = dtfData.apply(
+    lambda row: row['end'] - sum(
+        [
+            1 for char in row['text'][:row['end']] \
+            if char in string.punctuation
+        ]
+    ),
+    axis=1
+)
+
+# drop redundant columns
+dtfData.drop(['text', 'start', 'end'], axis=1, inplace=True)
