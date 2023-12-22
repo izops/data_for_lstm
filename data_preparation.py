@@ -2,6 +2,7 @@
 import random
 import numpy as np
 import pandas as pd
+import datetime
 import json
 import logging
 
@@ -185,21 +186,33 @@ def strRandomDate() -> str:
         - None
 
     Outputs:
-        - strDate - date in dd/mm/yyyy format, it can potentially generate also
-        nonsense dates like 30/02/2021 or 31/04/2025
+        - strDate - a valid random date between 01/01/2020 and 31/12/2030
+        in dd/mm/yyyy format
     """
-
-    # generate random day
-    intDay = random.randint(1, 31)
-
-    # generate random month
-    intMonth = random.randint(1, 12)
 
     # generate random year
     intYear = random.randint(2020, 2030)
 
-    # create date
-    strDate = str(intDay) + '/' + str(intMonth) + '/' + str(intYear)
+    # generate random month
+    intMonth = random.randint(1, 12)
+
+    # generate random day based on the year and month
+    if intMonth in [1, 3, 5, 7, 8, 10, 12]:
+        intDay = random.randint(1, 31)
+    elif intMonth in [4, 6, 9, 11]:
+        intDay = random.randint(1, 30)
+    else:
+        # generate february date for leap year
+        if (intYear % 4 == 0 and intYear % 100 != 0) or (intYear % 400 == 0):
+            intDay = random.randint(1, 29)
+        else:
+            intDay = random.randint(1, 28)
+    
+    # create the date
+    dteRandomDate = datetime.date(intYear, intMonth, intDay)
+
+    # convert the date to string
+    strDate = dteRandomDate.strftime('%d/%m/%Y')
 
     return strDate
 
