@@ -45,3 +45,23 @@ def dtfJSONtoDataFrame(pobjJSONData: dict) -> pd.DataFrame:
     dtfOut = pd.merge(dtfText, dtfAnnotations, on='text')
 
     return dtfOut
+
+def strCleanUpText(pstrText: str) -> str:
+    """Clean up the text from punctuation.
+    
+    Inputs:
+        - pstrText - original text to clean up
+
+    Outputs:
+        - strOut - text cleaned of all punctuation
+    """
+
+    assert type(pstrText) == str, 'String input required'
+
+    # define replacement dictionary
+    dctReplace = str.maketrans('', '', string.punctuation)
+
+    # remove punctuation from the input string
+    strOut = pstrText.translate(dctReplace)
+
+    return strOut
