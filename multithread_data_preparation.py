@@ -1,10 +1,14 @@
 # %% imports
-import random
 import numpy as np
 import pandas as pd
 import datetime
 import json
 import logging
+import random
+import os
+import concurrent.futures
+import shutil
+import tempfile
 
 # %% set up logging
 logging.basicConfig(
@@ -81,7 +85,21 @@ lstTokens = [
     strTokTotal
 ]
 
-# functions
+# %% import data
+# %% import data
+
+dtfCity = pd.read_csv(strPathData + 'cities.csv', encoding='latin-1')
+dtfCompany = pd.read_csv(strPathData + 'company.csv', encoding='latin-1')
+dtfItems = pd.read_csv(strPathData + 'items.csv', encoding='latin-1')
+dtfName = pd.read_csv(strPathData + 'name.csv', encoding='latin-1')
+dtfStreet = pd.read_csv(strPathData + 'street.csv', encoding='latin-1')
+dtfPhone = pd.read_csv(
+    strPathData + 'phone.csv',
+    encoding='latin-1',
+    dtype={'Phone': str}
+)
+
+# %% functions
 def strGetRandomTemplate(pintSampleSize: int) -> str:
     """Return text saved in one of the possible templates.
     
@@ -257,21 +275,7 @@ def strRandomizeTemplateItems(pstrTemplate: str) -> str:
 
     return strTemplateOut
 
-# %% import data
-
-dtfCity = pd.read_csv(strPathData + 'cities.csv', encoding='latin-1')
-dtfCompany = pd.read_csv(strPathData + 'company.csv', encoding='latin-1')
-dtfItems = pd.read_csv(strPathData + 'items.csv', encoding='latin-1')
-dtfName = pd.read_csv(strPathData + 'name.csv', encoding='latin-1')
-dtfStreet = pd.read_csv(strPathData + 'street.csv', encoding='latin-1')
-dtfPhone = pd.read_csv(
-    strPathData + 'phone.csv',
-    encoding='latin-1',
-    dtype={'Phone': str}
-)
-
-# %% generate annotations
-for intCount in range(intFiles):
+def GenerateJSON(pstrOutPath: str) -> None:
     # get a random template to annotate
     strText = strGetRandomTemplate(intTemplates)
 
@@ -441,15 +445,37 @@ for intCount in range(intFiles):
 
     # export the annotated file to json
     strJSON = json.dumps(dctJSON, indent=4)
-    
-    # create a name for the output file
-    strOut = strPathOutputs + 'a' + str(100000 + intCount) + '.json'
 
     # save the invoice in a json file
-    objNewJSON = open(strOut, 'w')
-    objNewJSON.writelines(strJSON)
-    objNewJSON.close()
+    with open(pstrOutPath, 'w') as objOut:
+        objOut.write(strJSON)
 
-    # print count
-    if intCount % 1000 == 0:
-        print('Generated {} files'.format(intCount))
+def Threading(pintNumberOfFiles: int) -> None:
+    with concurrent.futures.ThreadPoolExecutor() as objExecutor:
+        lstFutures = []
+
+        # submit tasks for file generation
+        for intCount in range(pintNumberOfFiles):
+            strOut = os.path.join(strPathOutputs, f'a{100000 + intCount}.json')
+            lstFutures.append(objExecutor.submit(GenerateJSON, strOut))
+
+        for objFuture in concurrent.futures.as_completed(lstFutures):
+            try:
+                objFuture.result()
+            except Exception as e:
+                print(f"An error occurred: {e}")
+
+        # # move generated files to the final output directory
+        # for intIndex, objFuture in enumerate(lstFutures):
+        #     strTmp = os.path.join(strPathOutputs, f'a{100000 + intCount}.json')
+        #     strOut = os.path.join(strPathOutputs, f'a{100000 + intIndex}.json')
+        #     shutil.move(strTmp, strOut)
+        
+        # # clean up the temporary directory
+        # shutil.rmtree(strTempDir)
+
+# %% generate annotations
+if __name__ == '__main__':
+    print(datetime.datetime.now())
+    Threading(intFiles)
+    print(datetime.datetime.now())
