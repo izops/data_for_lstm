@@ -271,6 +271,7 @@ dtfPhone = pd.read_csv(
 )
 
 # %% generate annotations
+print(datetime.datetime.now())
 for intCount in range(intFiles):
     # get a random template to annotate
     strText = strGetRandomTemplate(intTemplates)
@@ -453,3 +454,5 @@ for intCount in range(intFiles):
     # print count
     if intCount % 1000 == 0:
         print('Generated {} files'.format(intCount))
+
+print(datetime.datetime.now())
