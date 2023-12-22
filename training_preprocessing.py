@@ -1,5 +1,6 @@
 # %% imports
 import pandas as pd
+import os
 import json
 import string
 
@@ -65,3 +66,22 @@ def strCleanUpText(pstrText: str) -> str:
     strOut = pstrText.translate(dctReplace)
 
     return strOut
+
+# %% data processing
+
+# initialize an empty data frame for storing the data
+dtfData = pd.DataFrame()
+
+# import available JSON files and clean them up
+for strFile in os.listdir(strPathJSON):
+    # process only JSON files
+    if strFile.endswith('.json') and os.path.isfile(strPathJSON + strFile):
+        # open the file and ingest the data
+        with open(strPathJSON + strFile) as objFile:
+            dctData = json.load(objFile)
+        
+        # consolidate the ingested data
+        dtfProcessing = dtfJSONtoDataFrame(dctData)
+
+        # append the processed dataset to the main data frame
+        dtfData.append(dtfProcessing, ignore_index=True)
