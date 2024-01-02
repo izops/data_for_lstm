@@ -4,6 +4,7 @@ import os
 import json
 import string
 import concurrent.futures
+import datetime
 
 # %% definitions
 
@@ -69,6 +70,15 @@ def strCleanUpText(pstrText: str) -> str:
     return strOut
 
 def dtfProcessJSON(pstrPath: str):
+    """Import and process a JSON file from the path to a required form.
+    
+    Inputs:
+        - pstrPath - full path to a JSON file
+
+    Outputs:
+        - dtfProcessing - pandas data frame containing the processed JSON file,
+        the start and end tokens indexes adjusted for stripping the punctuation
+    """
     assert os.path.isfile(pstrPath), 'Input must be a path to a file.'
 
     # initialize an empty data frame
@@ -114,6 +124,15 @@ def dtfProcessJSON(pstrPath: str):
     return dtfProcessing
 
 def dtfMergeDataFrames(plstDataFrames: list) -> pd.DataFrame:
+    """Join all data frames contained in a list to a single data frame.
+
+    Inputs:
+        - plstDataFrames - list of pandas data frames with the same column
+        structure
+
+    Outputs:
+        - dtfOut - pandas data frame of concatenated data frames
+    """
     assert type(plstDataFrames) == list, 'Input must be a list of data frames'
 
     # concatenate all data frames from the input list to a single data frame
@@ -122,6 +141,15 @@ def dtfMergeDataFrames(plstDataFrames: list) -> pd.DataFrame:
     return dtfOut
 
 def dtfThreading(pstrPath: str) -> pd.DataFrame:
+    """Import JSON files in multithreaded process.
+    
+    Inputs:
+        - pstrPath - path to the JSON files folder
+
+    Outputs:
+        - dtfOut - pandas data frame containing all imported JSON files
+        concatenated under each other
+    """
     # get all json files from the given directory
     lstJSONFiles = [
         os.path.join(
@@ -142,4 +170,6 @@ def dtfThreading(pstrPath: str) -> pd.DataFrame:
 
 # %% run the process
 if __name__ == '__main__':
+    print(datetime.datetime.now())
     dtfImport = dtfThreading(strPathJSON)
+    print(datetime.datetime.now())
