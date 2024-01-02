@@ -187,7 +187,11 @@ def dtfThreading(pstrPath: str) -> pd.DataFrame:
 
             # print progress
             if intCount % 1000 == 0 and intCount > 0:
-                print(f'Files processed: {intCount}')
+                # get time
+                strTime = str(datetime.datetime.now())
+
+                # print message
+                print(f'\t{strTime}: Files processed: {intCount}')
 
         # process each JSON file concurrently
         lstDataFrames = list(objExecutor.map(dtfProcessJSON, lstJSONFiles))
