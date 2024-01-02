@@ -7,8 +7,6 @@ import logging
 import random
 import os
 import concurrent.futures
-import shutil
-import tempfile
 
 # %% set up logging
 logging.basicConfig(
@@ -451,7 +449,7 @@ def GenerateJSON(pstrOutPath: str) -> None:
         objOut.write(strJSON)
 
 def Threading(pintNumberOfFiles: int) -> None:
-    with concurrent.futures.ThreadPoolExecutor() as objExecutor:
+    with concurrent.futures.ProcessPoolExecutor() as objExecutor:
         lstFutures = []
 
         # submit tasks for file generation
@@ -459,23 +457,18 @@ def Threading(pintNumberOfFiles: int) -> None:
             strOut = os.path.join(strPathOutputs, f'a{100000 + intCount}.json')
             lstFutures.append(objExecutor.submit(GenerateJSON, strOut))
 
-        for objFuture in concurrent.futures.as_completed(lstFutures):
-            try:
-                objFuture.result()
-            except Exception as e:
-                print(f"An error occurred: {e}")
-
-        # # move generated files to the final output directory
-        # for intIndex, objFuture in enumerate(lstFutures):
-        #     strTmp = os.path.join(strPathOutputs, f'a{100000 + intCount}.json')
-        #     strOut = os.path.join(strPathOutputs, f'a{100000 + intIndex}.json')
-        #     shutil.move(strTmp, strOut)
-        
-        # # clean up the temporary directory
-        # shutil.rmtree(strTempDir)
+        concurrent.futures.wait(lstFutures)
 
 # %% generate annotations
 if __name__ == '__main__':
     print(datetime.datetime.now())
     Threading(intFiles)
     print(datetime.datetime.now())
+
+    # ThreadPoolExecutor result:
+    # 2024-01-02 07:54:48.922126
+    # 2024-01-02 08:04:03.673206
+
+    # ProcessPoolExecutor result:
+    # 2024-01-02 08:09:36.040471
+    # 2024-01-02 08:14:09.600813
