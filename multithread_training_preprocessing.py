@@ -160,6 +160,35 @@ def dtfThreading(pstrPath: str) -> pd.DataFrame:
     
     # parallelize the import process
     with concurrent.futures.ThreadPoolExecutor() as objExecutor:
+        lstDataFrames = []
+
+        lstFutures = [
+            objExecutor.submit(
+                dtfProcessJSON,
+                strPath
+            ) for strPath in lstJSONFiles
+        ]
+
+        # initialize a counter for tracking the number of processed files
+        intCount = 0
+
+        for objFuture in concurrent.futures.as_completed(lstFutures):
+            try:
+                # get result from the process
+                dtfResult = objFuture.result()
+
+                # append the data frame to results
+                lstDataFrames.append(dtfResult)
+
+                # increment the counter
+                intCount += 1
+            except Exception as e:
+                print(f'Error processing file {e}')
+
+            # print progress
+            if intCount % 1000 == 0 and intCount > 0:
+                print(f'Files processed: {intCount}')
+
         # process each JSON file concurrently
         lstDataFrames = list(objExecutor.map(dtfProcessJSON, lstJSONFiles))
 
