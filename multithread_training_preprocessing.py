@@ -84,42 +84,46 @@ def dtfProcessJSON(pstrPath: str):
     # initialize an empty data frame
     dtfProcessing = pd.DataFrame()
 
-    # process only JSON files
-    if pstrPath.endswith('.json'):
-        # open the file and ingest the data
-        with open(pstrPath) as objFile:
-            dctData = json.load(objFile)
-        
-        # consolidate the ingested data
-        dtfProcessing = dtfJSONtoDataFrame(dctData)
+    try:
+        # process only JSON files
+        if pstrPath.endswith('.json'):
+            # open the file and ingest the data
+            with open(pstrPath) as objFile:
+                dctData = json.load(objFile)
+            
+            # consolidate the ingested data
+            dtfProcessing = dtfJSONtoDataFrame(dctData)
 
-        # replace punctuation from the original input text
-        dtfProcessing['clean_text'] = dtfProcessing['text'].apply(
-            strCleanUpText
-        )
+            # replace punctuation from the original input text
+            dtfProcessing['clean_text'] = dtfProcessing['text'].apply(
+                strCleanUpText
+            )
 
-        # recalculate position of the labels after the cleanup
-        dtfProcessing['start_fix'] = dtfProcessing.apply(
-            lambda row: row['start'] - sum(
-                [
-                    1 for char in row['text'][:row['start']] \
-                    if char in string.punctuation
-                ]
-            ),
-            axis=1
-        )
-        dtfProcessing['end_fix'] = dtfProcessing.apply(
-            lambda row: row['end'] - sum(
-                [
-                    1 for char in row['text'][:row['end']] \
-                    if char in string.punctuation
-                ]
-            ),
-            axis=1
-        )
+            # recalculate position of the labels after the cleanup
+            dtfProcessing['start_fix'] = dtfProcessing.apply(
+                lambda row: row['start'] - sum(
+                    [
+                        1 for char in row['text'][:row['start']] \
+                        if char in string.punctuation
+                    ]
+                ),
+                axis=1
+            )
+            dtfProcessing['end_fix'] = dtfProcessing.apply(
+                lambda row: row['end'] - sum(
+                    [
+                        1 for char in row['text'][:row['end']] \
+                        if char in string.punctuation
+                    ]
+                ),
+                axis=1
+            )
 
-        # drop redundant columns
-        dtfProcessing.drop(['text', 'start', 'end'], axis=1, inplace=True)
+            # drop redundant columns
+            dtfProcessing.drop(['text', 'start', 'end'], axis=1, inplace=True)
+
+    except Exception as e:
+        print(f'Error in JSON processing: {e}')
 
     return dtfProcessing
 
