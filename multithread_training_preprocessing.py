@@ -94,34 +94,6 @@ def dtfProcessJSON(pstrPath: str):
             # consolidate the ingested data
             dtfProcessing = dtfJSONtoDataFrame(dctData)
 
-            # replace punctuation from the original input text
-            dtfProcessing['clean_text'] = dtfProcessing['text'].apply(
-                strCleanUpText
-            )
-
-            # recalculate position of the labels after the cleanup
-            dtfProcessing['start_fix'] = dtfProcessing.apply(
-                lambda row: row['start'] - sum(
-                    [
-                        1 for char in row['text'][:row['start']] \
-                        if char in string.punctuation
-                    ]
-                ),
-                axis=1
-            )
-            dtfProcessing['end_fix'] = dtfProcessing.apply(
-                lambda row: row['end'] - sum(
-                    [
-                        1 for char in row['text'][:row['end']] \
-                        if char in string.punctuation
-                    ]
-                ),
-                axis=1
-            )
-
-            # drop redundant columns
-            dtfProcessing.drop(['text', 'start', 'end'], axis=1, inplace=True)
-
     except Exception as e:
         print(f'Error in JSON processing: {e}')
 
@@ -162,10 +134,13 @@ def dtfThreading(pstrPath: str) -> pd.DataFrame:
         ) for strFile in os.listdir(pstrPath) if strFile.endswith('.json')
     ]
     
-    # parallelize the import process
-    with concurrent.futures.ThreadPoolExecutor() as objExecutor:
-        lstDataFrames = []
+    # initialize the list of outputs
+    lstOutputs = []
 
+    # initialize file counter
+    intCount = 0
+
+    with concurrent.futures.ThreadPoolExecutor() as objExecutor:
         lstFutures = [
             objExecutor.submit(
                 dtfProcessJSON,
@@ -173,40 +148,81 @@ def dtfThreading(pstrPath: str) -> pd.DataFrame:
             ) for strPath in lstJSONFiles
         ]
 
-        # initialize a counter for tracking the number of processed files
-        intCount = 0
+    for objFuture in concurrent.futures.as_completed(lstFutures):
+        try:
+            # get result of data reading
+            dtfResult = objFuture.result()
 
-        for objFuture in concurrent.futures.as_completed(lstFutures):
-            try:
-                # get result from the process
-                dtfResult = objFuture.result()
+            # append the result to the final list
+            lstOutputs.append(dtfResult)
 
-                # append the data frame to results
-                lstDataFrames.append(dtfResult)
+        except Exception as e:
+            # print error message
+            print(f'Error processing file: {e}')
 
-                # increment the counter
-                intCount += 1
-            except Exception as e:
-                print(f'Error processing file {e}')
+        # increment the counter
+        intCount += 1
 
-            # print progress
-            if intCount % 1000 == 0 and intCount > 0:
-                # get time
-                strTime = str(datetime.datetime.now())
+        if intCount % 1000 == 0:
+             # get time
+            strTime = str(datetime.datetime.now())
 
-                # print message
-                print(f'\t{strTime}: Files processed: {intCount}')
+            # print message
+            print(f'\t{strTime}: Files processed: {intCount}')
 
-        # process each JSON file concurrently
-        lstDataFrames = list(objExecutor.map(dtfProcessJSON, lstJSONFiles))
-
-    # merge all data frames
-    dtfOut = dtfMergeDataFrames(lstDataFrames)
+    # merge all data frames together
+    dtfOut = dtfMergeDataFrames(lstOutputs)
 
     return dtfOut
 
-# %% run the process
+# %% run the import process
 if __name__ == '__main__':
     print(datetime.datetime.now())
     dtfImport = dtfThreading(strPathJSON)
     print(datetime.datetime.now())
+
+# %% post process the imported data
+
+strTime = str(datetime.datetime.now())
+print(f'{strTime} Start')
+
+# replace punctuation from the original input text
+dtfImport['clean_text'] = dtfImport['text'].apply(
+    strCleanUpText
+)
+
+strTime = str(datetime.datetime.now())
+print(f' - {strTime} Text cleaned up')
+
+# recalculate position of the labels after the cleanup
+dtfImport['start_fix'] = dtfImport.apply(
+    lambda row: row['start'] - sum(
+        [
+            1 for char in row['text'][:row['start']] \
+            if char in string.punctuation
+        ]
+    ),
+    axis=1
+)
+
+strTime = str(datetime.datetime.now())
+print(f' - {strTime} Label start recalculated')
+
+dtfImport['end_fix'] = dtfImport.apply(
+    lambda row: row['end'] - sum(
+        [
+            1 for char in row['text'][:row['end']] \
+            if char in string.punctuation
+        ]
+    ),
+    axis=1
+)
+
+strTime = str(datetime.datetime.now())
+print(f' - {strTime} Label end recalculated')
+
+# drop redundant columns
+dtfImport.drop(['text', 'start', 'end'], axis=1, inplace=True)
+
+strTime = str(datetime.datetime.now())
+print(f'{strTime} End')
