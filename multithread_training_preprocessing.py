@@ -1,6 +1,5 @@
 # %% imports
 import pandas as pd
-import math
 import os
 import json
 import string
@@ -14,9 +13,6 @@ strPathJSON = 'c:/repositories/zzz_data_for_lstm/data/outputs/'
 
 # file name
 strExtension = '.json'
-
-# maximum number of files processed by a single executor
-intN = 5000
 
 # functions
 def dtfJSONtoDataFrame(pobjJSONData: dict) -> pd.DataFrame:
@@ -165,63 +161,47 @@ def dtfThreading(pstrPath: str) -> pd.DataFrame:
             strFile
         ) for strFile in os.listdir(pstrPath) if strFile.endswith('.json')
     ]
-
-    # initialize list of processed merged data frames
-    lstSubChunks = []
-
-    # process the files in parallel with set maximum of files per executor
-    for intChunk in range(math.ceil(len(lstJSONFiles) / intN)):
-        # define a subchunk of files to process
-        lstFiles = lstJSONFiles[
-            (intChunk * intN) : (min((intChunk + 1) * intN, len(lstJSONFiles)))
-        ]
     
-        # parallelize the import process
-        with concurrent.futures.ProcessPoolExecutor() as objExecutor:
-            lstDataFrames = []
+    # parallelize the import process
+    with concurrent.futures.ProcessPoolExecutor() as objExecutor:
+        lstDataFrames = []
 
-            lstFutures = [
-                objExecutor.submit(
-                    dtfProcessJSON,
-                    strPath
-                ) for strPath in lstFiles
-            ]
+        lstFutures = [
+            objExecutor.submit(
+                dtfProcessJSON,
+                strPath
+            ) for strPath in lstJSONFiles
+        ]
 
-            # initialize a counter for tracking the number of processed files
-            intCount = 0
+        # initialize a counter for tracking the number of processed files
+        intCount = 0
 
-            for objFuture in concurrent.futures.as_completed(lstFutures):
-                try:
-                    # get result from the process
-                    dtfResult = objFuture.result()
+        for objFuture in concurrent.futures.as_completed(lstFutures):
+            try:
+                # get result from the process
+                dtfResult = objFuture.result()
 
-                    # append the data frame to results
-                    lstDataFrames.append(dtfResult)
+                # append the data frame to results
+                lstDataFrames.append(dtfResult)
 
-                    # increment the counter
-                    intCount += 1
-                except Exception as e:
-                    print(f'Error processing file {e}')
+                # increment the counter
+                intCount += 1
+            except Exception as e:
+                print(f'Error processing file {e}')
 
-                # print progress
-                if intCount % 1000 == 0 and intCount > 0:
-                    # get time
-                    strTime = str(datetime.datetime.now())
+            # print progress
+            if intCount % 1000 == 0 and intCount > 0:
+                # get time
+                strTime = str(datetime.datetime.now())
 
-                    # print message
-                    print(f'\t{strTime}: Files processed: {intCount}')
+                # print message
+                print(f'\t{strTime}: Files processed: {intCount}')
 
-            # process each JSON file concurrently
-            lstDataFrames = list(objExecutor.map(dtfProcessJSON, lstFiles))
+        # process each JSON file concurrently
+        lstDataFrames = list(objExecutor.map(dtfProcessJSON, lstJSONFiles))
 
-        # merge all data frames
-        dtfSubChunk = dtfMergeDataFrames(lstDataFrames)
-
-        # append to the chunk list
-        lstSubChunks.append(dtfSubChunk)
-
-    # merge all subchunks
-    dtfOut = dtfMergeDataFrames(lstSubChunks)
+    # merge all data frames
+    dtfOut = dtfMergeDataFrames(lstDataFrames)
 
     return dtfOut
 
