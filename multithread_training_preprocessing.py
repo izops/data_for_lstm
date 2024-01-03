@@ -163,7 +163,7 @@ def dtfThreading(pstrPath: str) -> pd.DataFrame:
     ]
     
     # parallelize the import process
-    with concurrent.futures.ProcessPoolExecutor() as objExecutor:
+    with concurrent.futures.ThreadPoolExecutor() as objExecutor:
         lstDataFrames = []
 
         lstFutures = [
