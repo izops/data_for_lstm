@@ -84,8 +84,6 @@ lstTokens = [
 ]
 
 # %% import data
-# %% import data
-
 dtfCity = pd.read_csv(strPathData + 'cities.csv', encoding='latin-1')
 dtfCompany = pd.read_csv(strPathData + 'company.csv', encoding='latin-1')
 dtfItems = pd.read_csv(strPathData + 'items.csv', encoding='latin-1')
