@@ -192,7 +192,7 @@ if __name__ == '__main__':
 
 # %% post process the imported data
 
-intChunkSize = 1000
+intChunkSize = 10000
 
 # split the data into chunks
 lstChunks = np.array_split(
@@ -238,3 +238,9 @@ for dtfData in lstChunks:
 
 strTime = str(datetime.datetime.now())
 print(f'{strTime} End')
+
+# join all processed files
+dtfJoined = pd.concat(lstProcessed, ignore_index=True)
+
+# save the processed file as a csv
+dtfJoined.to_csv('training_data.csv', index=False)
