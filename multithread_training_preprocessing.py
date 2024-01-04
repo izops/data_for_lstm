@@ -1,5 +1,6 @@
 # %% imports
 import pandas as pd
+import numpy as np
 import os
 import json
 import string
@@ -175,6 +176,14 @@ def dtfThreading(pstrPath: str) -> pd.DataFrame:
 
     return dtfOut
 
+def calculate_fixed_positions(row, column_name):
+    return row[column_name] - sum(
+        [
+            1 for char in row['text'][:row[column_name]] \
+                if char in string.punctuation
+        ]
+    )
+
 # %% run the import process
 if __name__ == '__main__':
     print(datetime.datetime.now())
@@ -183,46 +192,49 @@ if __name__ == '__main__':
 
 # %% post process the imported data
 
+intChunkSize = 1000
+
+# split the data into chunks
+lstChunks = np.array_split(
+    dtfImport,
+    range(intChunkSize, len(dtfImport), intChunkSize)
+)
+
+intCount = 1
+
+lstProcessed = []
+
 strTime = str(datetime.datetime.now())
 print(f'{strTime} Start')
 
-# replace punctuation from the original input text
-dtfImport['clean_text'] = dtfImport['text'].apply(
-    strCleanUpText
-)
+for dtfData in lstChunks:
+    # replace punctuation from the original input text
+    dtfData['clean_text'] = dtfData['text'].apply(
+        strCleanUpText
+    )
 
-strTime = str(datetime.datetime.now())
-print(f' - {strTime} Text cleaned up')
+    # recalculate position of the labels after the cleanup
+    dtfData['start_fix'] = dtfData.apply(
+        calculate_fixed_positions,
+        axis=1,
+        column_name='start'
+    )
+    dtfData['end_fix'] = dtfData.apply(
+        calculate_fixed_positions,
+        axis=1,
+        column_name='end'
+    )
 
-# recalculate position of the labels after the cleanup
-dtfImport['start_fix'] = dtfImport.apply(
-    lambda row: row['start'] - sum(
-        [
-            1 for char in row['text'][:row['start']] \
-            if char in string.punctuation
-        ]
-    ),
-    axis=1
-)
+    # drop redundant columns
+    dtfData.drop(['text', 'start', 'end'], axis=1, inplace=True)
 
-strTime = str(datetime.datetime.now())
-print(f' - {strTime} Label start recalculated')
+    lstProcessed.append(dtfData)
 
-dtfImport['end_fix'] = dtfImport.apply(
-    lambda row: row['end'] - sum(
-        [
-            1 for char in row['text'][:row['end']] \
-            if char in string.punctuation
-        ]
-    ),
-    axis=1
-)
+    if intCount % 100 == 0:
+        strTime = str(datetime.datetime.now())
+        print(f' - {strTime} - {intCount} chunks processed')
 
-strTime = str(datetime.datetime.now())
-print(f' - {strTime} Label end recalculated')
-
-# drop redundant columns
-dtfImport.drop(['text', 'start', 'end'], axis=1, inplace=True)
+    intCount += 1
 
 strTime = str(datetime.datetime.now())
 print(f'{strTime} End')
