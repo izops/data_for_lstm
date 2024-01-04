@@ -243,4 +243,4 @@ print(f'{strTime} End')
 dtfJoined = pd.concat(lstProcessed, ignore_index=True)
 
 # save the processed file as a csv
-dtfJoined.to_csv('training_data.csv', index=False)
+dtfJoined.to_parquet('processed.parquet', compression='snappy')
