@@ -100,7 +100,7 @@ def dctCleanText(pdctData: dict) -> dict:
         if strChar in string.punctuation:
             intSum += 1
         else:
-            strCleanText = ''.join(strCleanText, strChar)
+            strCleanText = ''.join([strCleanText, strChar])
 
         # store the incremental sum
         dctCumSum[intIndex] = intSum
