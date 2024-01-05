@@ -423,7 +423,7 @@ def GenerateJSON(pstrOutPath: str) -> None:
                 strLabel = 'item_list'
             else:
                 # calculate the end position of the token
-                intEnd = intStart + len(strReplace) - 1
+                intEnd = intStart + len(strReplace)
 
                 # create label
                 strLabel = strCreateJSONLabel(strToken)
