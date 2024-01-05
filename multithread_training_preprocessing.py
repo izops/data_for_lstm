@@ -223,7 +223,7 @@ if __name__ == '__main__':
     dtfText = dtfImport[['text', 'hash']].drop_duplicates()
 
     # drop the text field from the original data frame
-    dtfImport.drop('text', inplace=True)
+    dtfImport.drop('text', axis=1, inplace=True)
 
     # save the processed files in parquet format
     dtfImport.to_parquet(
