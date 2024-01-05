@@ -140,3 +140,6 @@ cython_debug/
 data/*
 !data/.keep
 !data/inputs/
+
+# all parquet data files
+*.parquet
