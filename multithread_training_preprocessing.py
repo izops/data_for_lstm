@@ -70,6 +70,56 @@ def strCleanUpText(pstrText: str) -> str:
 
     return strOut
 
+def dctCleanText(pdctData: dict) -> dict:
+    """Clean up annotated data loaded from JSON stored in a dictionary.
+    
+    Inputs:
+        - pdctData - dictionary containing an ingested JSON annotated data in
+        earlier-defined format containing 'text' field with the annotated text,
+        'annotations' field that contains dictionaries for each annotation, and
+        'start' and 'end' fields within each 'annotations' dictionary that
+        contains integer start and end of respective annotated label
+
+    Outputs:
+        - pdctData - dictionary containing the text cleaned of punctuation and
+        with the start and end positions of its labels recalculated respective
+        to the number of punctuation characters in the original text
+    """
+
+    assert type(pdctData) == dict, 'Input must be a dictionary'
+
+    # initialize variables for the process
+    intSum = 0
+    dctCumSum = dict()
+    strCleanText = ''
+
+    # create a dictionary of number of punctuation characters within string at
+    # a specified position while cleaning the original text
+    for intIndex, strChar in enumerate(pdctData['text']):
+        # check if the character is punctuation
+        if strChar in string.punctuation:
+            intSum += 1
+        else:
+            strCleanText = ''.join(strCleanText, strChar)
+
+        # store the incremental sum
+        dctCumSum[intIndex] = intSum
+
+    # replace the original text with the cleaned one
+    pdctData['text'] = strCleanText
+
+    for dctAnnotation in pdctData['annotations']:
+        # for each annotation recalculate its starting and ending possition
+        dctAnnotation['start'] = dctAnnotation['start'] - dctCumSum[
+            dctAnnotation['start']
+        ]
+
+        dctAnnotation['end'] = dctAnnotation['end'] - dctCumSum[
+            dctAnnotation['end']
+        ]
+
+    return pdctData
+
 def dtfProcessJSON(pstrPath: str):
     """Import and process a JSON file from the path to a required form.
     
@@ -91,9 +141,12 @@ def dtfProcessJSON(pstrPath: str):
             # open the file and ingest the data
             with open(pstrPath) as objFile:
                 dctData = json.load(objFile)
+
+            # remove punctuation and recalculate the label positions
+            dctClean = dctCleanText(dctData)
             
             # consolidate the ingested data
-            dtfProcessing = dtfJSONtoDataFrame(dctData)
+            dtfProcessing = dtfJSONtoDataFrame(dctClean)
 
     except Exception as e:
         print(f'Error in JSON processing: {e}')
