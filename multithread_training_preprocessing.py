@@ -50,26 +50,6 @@ def dtfJSONtoDataFrame(pobjJSONData: dict) -> pd.DataFrame:
 
     return dtfOut
 
-def strCleanUpText(pstrText: str) -> str:
-    """Clean up the text from punctuation.
-    
-    Inputs:
-        - pstrText - original text to clean up
-
-    Outputs:
-        - strOut - text cleaned of all punctuation
-    """
-
-    assert type(pstrText) == str, 'String input required'
-
-    # define replacement dictionary
-    dctReplace = str.maketrans('', '', string.punctuation)
-
-    # remove punctuation from the input string
-    strOut = pstrText.translate(dctReplace)
-
-    return strOut
-
 def dctCleanText(pdctData: dict) -> dict:
     """Clean up annotated data loaded from JSON stored in a dictionary.
     
@@ -228,14 +208,6 @@ def dtfThreading(pstrPath: str) -> pd.DataFrame:
     dtfOut = dtfMergeDataFrames(lstOutputs)
 
     return dtfOut
-
-def calculate_fixed_positions(row, column_name):
-    return row[column_name] - sum(
-        [
-            1 for char in row['text'][:row[column_name]] \
-                if char in string.punctuation
-        ]
-    )
 
 # %% run the import process
 if __name__ == '__main__':
