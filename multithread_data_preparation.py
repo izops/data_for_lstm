@@ -338,11 +338,14 @@ def GenerateJSON(pstrOutPath: str) -> None:
             strReplace = strRandomDate()
 
         elif strToken == strTokEmail:
-            # shuffle name data and generate email from name and company info
-            dtfRandom = dtfName.apply(np.random.permutation)
-            strReplace = dtfRandom.iloc[0][0] + '.' + dtfRandom.iloc[0][1]
-            strReplace += '@' + dtfRandomCompany.iloc[0][0] 
-            strReplace += dtfRandomCompany.iloc[0][1] + '.com'
+            # # shuffle name data and generate email from name and company info
+            # dtfRandom = dtfName.apply(np.random.permutation)
+            # strReplace = dtfRandom.iloc[0][0] + '.' + dtfRandom.iloc[0][1]
+            # strReplace += '@' + dtfRandomCompany.iloc[0][0] 
+            # strReplace += dtfRandomCompany.iloc[0][1] + '.com'
+
+            # use a placeholder due to punctuation removal
+            strReplace = 'email'
 
         elif strToken == strTokInvoiceNo:
             # generate a random invoice number
