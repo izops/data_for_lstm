@@ -10,7 +10,7 @@ import datetime
 # %% definitions
 
 # paths
-strPathJSON = 'c:/repositories/zzz_data_for_lstm/data/outputs/'
+strPathJSON = 'c:/repositories/zzz_data_for_lstm/data/outputs/json/'
 
 # file name
 strExtension = '.json'
@@ -215,5 +215,14 @@ if __name__ == '__main__':
     dtfImport = dtfThreading(strPathJSON)
     print(datetime.datetime.now())
 
-# save the processed file as a parquet
-dtfImport.to_parquet('processed.parquet', compression='snappy')
+    # calculate hash of each text field
+    dtfImport['hash'] = dtfImport['text'].apply(hash)
+
+    # store the original text in a separate data frame
+    dtfText = dtfImport[['text', 'hash']].drop_duplicates()
+
+    # drop the text field from the original data frame
+    dtfImport.drop('text', inplace=True)
+
+    # save the processed file as a parquet
+    dtfImport.to_parquet('processed.parquet', compression='snappy')

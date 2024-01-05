@@ -8,7 +8,7 @@ import datetime
 # %% definitions
 
 # paths
-strPathJSON = 'c:/repositories/zzz_data_for_lstm/data/outputs/'
+strPathJSON = 'c:/repositories/zzz_data_for_lstm/data/outputs/json/'
 
 # file name
 strExtension = '.json'

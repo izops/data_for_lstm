@@ -28,7 +28,7 @@ intTaxRate = 0.2
 # paths
 strPathData = 'c:/repositories/zzz_data_for_lstm/data/inputs/'
 strPathTemplates = 'c:/repositories/zzz_data_for_lstm/templates/'
-strPathOutputs = 'c:/repositories/zzz_data_for_lstm/data/outputs/'
+strPathOutputs = 'c:/repositories/zzz_data_for_lstm/data/outputs/json/'
 
 # file names
 strTemplateName = 'template'
