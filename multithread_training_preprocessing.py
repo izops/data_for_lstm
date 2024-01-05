@@ -243,57 +243,5 @@ if __name__ == '__main__':
     dtfImport = dtfThreading(strPathJSON)
     print(datetime.datetime.now())
 
-# %% post process the imported data
-
-intChunkSize = 10000
-
-# split the data into chunks
-lstChunks = np.array_split(
-    dtfImport,
-    range(intChunkSize, len(dtfImport), intChunkSize)
-)
-
-intCount = 1
-
-lstProcessed = []
-
-strTime = str(datetime.datetime.now())
-print(f'{strTime} Start')
-
-for dtfData in lstChunks:
-    # replace punctuation from the original input text
-    dtfData['clean_text'] = dtfData['text'].apply(
-        strCleanUpText
-    )
-
-    # recalculate position of the labels after the cleanup
-    dtfData['start_fix'] = dtfData.apply(
-        calculate_fixed_positions,
-        axis=1,
-        column_name='start'
-    )
-    dtfData['end_fix'] = dtfData.apply(
-        calculate_fixed_positions,
-        axis=1,
-        column_name='end'
-    )
-
-    # drop redundant columns
-    dtfData.drop(['text', 'start', 'end'], axis=1, inplace=True)
-
-    lstProcessed.append(dtfData)
-
-    if intCount % 100 == 0:
-        strTime = str(datetime.datetime.now())
-        print(f' - {strTime} - {intCount} chunks processed')
-
-    intCount += 1
-
-strTime = str(datetime.datetime.now())
-print(f'{strTime} End')
-
-# join all processed files
-dtfJoined = pd.concat(lstProcessed, ignore_index=True)
-
-# save the processed file as a csv
-dtfJoined.to_parquet('processed.parquet', compression='snappy')
+# save the processed file as a parquet
+dtfImport.to_parquet('processed.parquet', compression='snappy')
