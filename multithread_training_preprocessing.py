@@ -11,6 +11,7 @@ import datetime
 
 # paths
 strPathJSON = 'c:/repositories/zzz_data_for_lstm/data/outputs/json/'
+strPathBackup = 'c:/repositories/zzz_data_for_lstm/data/outputs/backup/'
 
 # file name
 strExtension = '.json'
@@ -224,5 +225,13 @@ if __name__ == '__main__':
     # drop the text field from the original data frame
     dtfImport.drop('text', inplace=True)
 
-    # save the processed file as a parquet
-    dtfImport.to_parquet('processed.parquet', compression='snappy')
+    # save the processed files in parquet format
+    dtfImport.to_parquet(
+        os.path.join(strPathBackup, 'annotations.parquet'),
+        compression='snappy'
+    )
+
+    dtfText.to_parquet(
+        os.path.join(strPathBackup, 'text.parquet'),
+        compression='snappy'
+    )
