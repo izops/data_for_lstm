@@ -1,6 +1,5 @@
 # %% imports
 import pandas as pd
-import numpy as np
 import os
 import json
 import string
@@ -216,22 +215,23 @@ if __name__ == '__main__':
     dtfImport = dtfThreading(strPathJSON)
     print(datetime.datetime.now())
 
-    # calculate hash of each text field
-    dtfImport['hash'] = dtfImport['text'].apply(hash)
+# %%
+# calculate hash of each text field
+dtfImport['hash'] = dtfImport['text'].apply(hash)
 
-    # store the original text in a separate data frame
-    dtfText = dtfImport[['text', 'hash']].drop_duplicates()
+# store the original text in a separate data frame
+dtfText = dtfImport[['text', 'hash']].drop_duplicates()
 
-    # drop the text field from the original data frame
-    dtfImport.drop('text', axis=1, inplace=True)
+# drop the text field from the original data frame
+dtfImport.drop('text', axis=1, inplace=True)
 
-    # save the processed files in parquet format
-    dtfImport.to_parquet(
-        os.path.join(strPathBackup, 'annotations.parquet'),
-        compression='snappy'
-    )
+# save the processed files in parquet format
+dtfImport.to_parquet(
+    os.path.join(strPathBackup, 'annotations.parquet'),
+    compression='snappy'
+)
 
-    dtfText.to_parquet(
-        os.path.join(strPathBackup, 'text.parquet'),
-        compression='snappy'
-    )
+dtfText.to_parquet(
+    os.path.join(strPathBackup, 'text.parquet'),
+    compression='snappy'
+)
