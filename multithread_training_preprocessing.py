@@ -225,8 +225,11 @@ dtfText = dtfImport[['text', 'hash']].drop_duplicates()
 # drop the text field from the original data frame
 dtfImport.drop('text', axis=1, inplace=True)
 
+# rename the data file for the continuity with other scripts
+dtfAnnotations = dtfImport
+
 # save the processed files in parquet format
-dtfImport.to_parquet(
+dtfAnnotations.to_parquet(
     os.path.join(strPathBackup, 'annotations.parquet'),
     compression='snappy'
 )
