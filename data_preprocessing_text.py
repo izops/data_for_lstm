@@ -155,3 +155,7 @@ np.save(os.path.join(strDataPath, 'X.npy'), arrData)
 
 # timestamp
 logging.info('Saving \'X\' finished')
+
+# extract label encodings and save in a separate file
+dtfExtract = dtfAnnotations[['label', 'label_encoded']].drop_duplicates()
+dtfExtract.to_csv(os.path.join(strDataPath, 'label_encodings.csv'), index=False)
