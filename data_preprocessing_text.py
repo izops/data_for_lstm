@@ -135,3 +135,23 @@ logging.info('Output sequences preparation finished')
 
 # convert the sparse matrix to a numpy array
 arrOutSeq = sparseOutSeq.toarray()
+
+# timestamp
+logging.info('Conversion to numpy finished')
+
+# %% save outputs
+
+# save to a file
+np.save(os.path.join(strDataPath, 'y.npy'), arrOutSeq)
+
+# timestamp
+logging.info('Saving \'y\' finished')
+
+# extract encoded text to numpy array
+arrData = dtfAnnotations['sequence'].to_numpy()
+
+# save encoded text to a file
+np.save(os.path.join(strDataPath, 'X.npy'), arrData)
+
+# timestamp
+logging.info('Saving \'X\' finished')
