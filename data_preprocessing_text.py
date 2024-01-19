@@ -97,6 +97,9 @@ objEncoder.fit(lstLabels)
 # put the encoded labels to the original data frame
 dtfAnnotations['label_encoded'] = objEncoder.transform(lstLabels)
 
+# increment the encodings by 1 to eliminate confusion with non-entity flag
+dtfAnnotations['label_encoded'] = dtfAnnotations['label_encoded'] + 1
+
 # timestamp
 logging.info('Encoding finished')
 
