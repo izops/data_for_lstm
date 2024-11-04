@@ -1,0 +1,16 @@
+-----------------------------------------------------
+|    [my-company]    |     Invoice [invoice-no]     |
+|---------------------------|------------------------|
+|  [my-address-street]      |   Invoice Date: [date-invoice] |
+|  [my-address-city], [my-address-zip]   |     Due Date: [date-due]   |
+|---------------------------|------------------------|
+| Bill To: [client]    |     [client-address-street]   |
+|                           |      [client-address-city], [client-address-zip]                  |
+|                           |                        |
+-----------------------------------------------------
+|          ITEMIZED LIST OF ITEMS AND FEES         |
+|---------------------------------------------------|
+[list-item-start]| [item-name]               |        [amount]      |[list-item-end]
+-----------------------------------------------------
+|                 GRAND TOTAL:        [total]         |
+-----------------------------------------------------

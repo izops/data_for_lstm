@@ -136,3 +136,10 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# all json files
+*.json
+
+# all parquet data files
+data/*
+!*.keep

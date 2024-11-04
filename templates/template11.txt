@@ -1,0 +1,17 @@
+_________________________________________________________
+| [my-company]                |  INVOICE          |
+| [my-address-street]             |  Invoice Number: [invoice-no] |
+| [my-address-city], [my-address-zip]            |  Invoice Date: [date-invoice]     |
+| [my-contact-phone]                     |  Due Date: [date-due]             |
+| [my-contact-email]                    |  Client: [client]            |
+|___________________________________|___________________________________|
+|  Description        |  Quantity |  Rate    |  Amount                 |
+|----------------------|-----------|----------|-------------------------|
+[list-item-start]| [item-name]             |   [qty]  | [rate] | [amount]              |[list-item-end]
+|______________________|___________|__________|_________________________|
+|  Subtotal:           |           |          |  [subtotal]             |
+|  Tax:                |           |          |  [tax]                  |
+|  Total:              |           |          |  [total]                |
+|______________________|___________|__________|_________________________|
+|  Payment Instructions                                                 |
+|_______________________________________________________________________|
